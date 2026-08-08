@@ -705,7 +705,7 @@
 
   <script>
     /* ── Password Gate ── */
-    const CORRECT = 'WhoToldYouThePassword';
+    const HASH = 'ec49db342f030224fc7b0b644150d1090258352b0aa0b970ea0c41f594922918';
     const gate = document.getElementById('password-gate');
     const input = document.getElementById('gate-input');
     const btn = document.getElementById('gate-btn');
@@ -716,8 +716,11 @@
       gate.style.display = 'none';
     }
 
-    function tryUnlock() {
-      if (input.value === CORRECT) {
+    async function tryUnlock() {
+      const encoded = new TextEncoder().encode(input.value);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+      const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+      if (hashHex === HASH) {
         sessionStorage.setItem('jg_unlocked', '1');
         gate.classList.add('unlocked');
         setTimeout(() => { gate.style.display = 'none'; }, 420);
